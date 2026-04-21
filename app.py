@@ -10,7 +10,7 @@ app = Flask(__name__)
 app.secret_key = 'mucurlu_ozel_guvenlik_anahtari'
 
 # --- PARATİKA AYARLARI ---
-PARATIKA_API_URL = "https://vpos.paratika.com.tr/paratika/api/v2/checkout"
+PARATIKA_API_URL = "https://vpos.paratika.com.tr/api/v2"
 MERCHANT_CODE = "10005757"
 MERCHANT_KEY = "UXomv9RzPyczSjLd4M1g"
 
@@ -52,7 +52,6 @@ def veri_hazirla():
                 uyumlu_seri TEXT
             )
         ''')
-        # --- YENİ: DUYURU/SLIDER TABLOSU ---
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS duyurular (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -81,7 +80,6 @@ def arama():
                        ('%' + sorgu + '%', '%' + sorgu + '%'))
         db_urunler = cursor.fetchall()
 
-        # Slider verilerini de çekiyoruz (Menü için gerekebilir)
         cursor.execute("SELECT * FROM duyurular")
         duyurular = [{"resim_url": d[1], "hedef_link": d[2]} for d in cursor.fetchall()]
 
@@ -103,8 +101,6 @@ def home():
 
     with sqlite3.connect('client_data.db') as conn:
         cursor = conn.cursor()
-
-        # --- SLIDER VERİLERİNİ ÇEK ---
         cursor.execute("SELECT * FROM duyurular")
         db_duyurular = cursor.fetchall()
         duyurular = [{"resim_url": d[1], "hedef_link": d[2]} for d in db_duyurular]
@@ -119,13 +115,8 @@ def home():
     liste_urunler = []
     for u in db_urunler:
         liste_urunler.append({
-            "id": u[0],
-            "ad": u[1],
-            "kod": u[2],
-            "fiyat": format_para(u[3]),
-            "kategori": u[4],
-            "alt": u[5],
-            "resim": u[6]
+            "id": u[0], "ad": u[1], "kod": u[2], "fiyat": format_para(u[3]),
+            "kategori": u[4], "alt": u[5], "resim": u[6]
         })
 
     return render_template('index.html', urunler=liste_urunler, duyurular=duyurular, sayfa=page, toplam_sayfa=toplam_sayfa, aktif_kategori='Anasayfa')
@@ -163,13 +154,8 @@ def urun_detay(id):
 
     if u:
         urun_verisi = {
-            "id": u[0],
-            "ad": u[1],
-            "kod": u[2],
-            "fiyat": format_para(u[3]),
-            "kategori": u[4],
-            "alt": u[5],
-            "resim": u[6],
+            "id": u[0], "ad": u[1], "kod": u[2], "fiyat": format_para(u[3]),
+            "kategori": u[4], "alt": u[5], "resim": u[6],
             "marka_detay": u[7] if u[7] else "MUCURLU Elite",
             "teslimat": u[8] if u[8] else "Aynı Gün Sevk",
             "uyumlu_seri": u[9] if u[9] else "-"
@@ -186,8 +172,6 @@ def kategori_filtre(ana_kat, alt_kat):
 
     with sqlite3.connect('client_data.db') as conn:
         cursor = conn.cursor()
-
-        # Kategori sayfalarında da slider görünebilir
         cursor.execute("SELECT * FROM duyurular")
         duyurular = [{"resim_url": d[1], "hedef_link": d[2]} for d in cursor.fetchall()]
 
@@ -201,13 +185,8 @@ def kategori_filtre(ana_kat, alt_kat):
     liste_urunler = []
     for u in db_urunler:
         liste_urunler.append({
-            "id": u[0],
-            "ad": u[1],
-            "kod": u[2],
-            "fiyat": format_para(u[3]),
-            "kategori": u[4],
-            "alt": u[5],
-            "resim": u[6]
+            "id": u[0], "ad": u[1], "kod": u[2], "fiyat": format_para(u[3]),
+            "kategori": u[4], "alt": u[5], "resim": u[6]
         })
 
     return render_template('index.html', urunler=liste_urunler, duyurular=duyurular, sayfa=page, toplam_sayfa=toplam_sayfa, baslik=f"{ana_kat} - {alt_kat}")
@@ -285,7 +264,7 @@ def siparis_tamamla():
         conn.commit()
 
     if odeme_tipi == 'kart':
-        # --- PARATİKA KESİN ÇÖZÜM (HIZALI) ---
+        # --- PARATİKA KESİN ÇÖZÜM ---
         tutar_str = "{:.2f}".format(toplam_sayi)
         ok_url = url_for('siparis_onay_ekrani', siparis_no=siparis_no, _external=True)
         fail_url = url_for('home', _external=True)
@@ -295,22 +274,22 @@ def siparis_tamamla():
         token = hashlib.sha1(hash_str.encode()).hexdigest()
 
         params = {
-            "action": action,
-            "merchantCode": MERCHANT_CODE,
-            "orderId": siparis_no,
-            "amount": tutar_str,
+            "action": str(action),
+            "merchantCode": str(MERCHANT_CODE),
+            "orderId": str(siparis_no),
+            "amount": str(tutar_str),
             "currency": "TRY",
-            "okUrl": ok_url,
-            "failUrl": fail_url,
-            "token": token,
-            "customerName": ad_soyad,
-            "customerEmail": email,
-            "customerPhone": telefon,
+            "okUrl": str(ok_url),
+            "failUrl": str(fail_url),
+            "token": str(token),
+            "customerName": str(ad_soyad),
+            "customerEmail": str(email),
+            "customerPhone": str(telefon),
             "isConfirm": "Y"
         }
 
         try:
-            api_url = "https://vpos.paratika.com.tr/paratika/api/v2"
+            api_url = "https://vpos.paratika.com.tr/api/v2"
             response = requests.post(api_url, data=params)
             
             if response.status_code == 200 and response.text.strip():
@@ -522,15 +501,15 @@ def veritabani_guncelle():
         conn.close()
 
 veritabani_guncelle()
+
 def sutun_ekle_garanti():
     conn = sqlite3.connect('client_data.db')
     cursor = conn.cursor()
     try:
         cursor.execute("ALTER TABLE siparisler ADD COLUMN durum TEXT DEFAULT 'Beklemede'")
         conn.commit()
-        print("Sütun başarıyla eklendi!")
     except sqlite3.OperationalError:
-        print("Sütun zaten var, sorun yok.")
+        pass
     finally:
         conn.close()
 
