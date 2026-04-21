@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sepetim | MUCURLU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --kirmizi: #e60000; --siyah: #1a1a1a; --gri: #f8f9fa; }
+        body { font-family: 'Inter', sans-serif; background: var(--gri); margin: 0; padding: 0; }
+        header { background: white; padding: 15px; text-align: center; border-bottom: 2px solid var(--kirmizi); display: flex; align-items: center; }
+        .geri { font-size: 20px; color: var(--siyah); text-decoration: none; padding: 0 10px; }
+        .baslik { flex-grow: 1; font-weight: bold; font-size: 18px; margin-right: 30px; }
+
+        .sepet-liste { padding: 15px; padding-bottom: 250px; } /* Butonlar için alt boşluğu biraz artırdım */
+        .sepet-urun { 
+            background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-left: 5px solid var(--kirmizi);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
+        }
+        .urun-bilgi-grup { display: flex; flex-direction: column; flex: 1; }
+        .urun-ad { font-weight: bold; font-size: 14px; color: var(--siyah); }
+        .urun-kod { color: #888; font-size: 11px; margin-top: 4px; }
+        .fiyat-grup { text-align: right; margin-right: 15px; }
+        .urun-fiyat { color: var(--siyah); font-weight: bold; font-size: 15px; }
+        
+        .sil-btn { color: #ccc; font-size: 18px; text-decoration: none; transition: 0.3s; }
+        .sil-btn:hover { color: var(--kirmizi); }
+
+        .ozet-alani { 
+            background: white; padding: 20px; position: fixed; bottom: 0; width: 100%; 
+            box-sizing: border-box; border-top: 1px solid #eee; 
+            border-radius: 25px 25px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        .ozet-satir { display: flex; justify-content: space-between; font-size: 14px; color: #666; margin-bottom: 8px; }
+        .toplam-satir { display: flex; justify-content: space-between; font-size: 19px; font-weight: 800; color: var(--kirmizi); margin-top: 10px; margin-bottom: 15px; padding-top: 10px; border-top: 1px dashed #eee; }
+        
+        .odeme-btn { 
+            background: var(--siyah); color: white; border: none; padding: 16px; 
+            width: 100%; border-radius: 12px; font-weight: bold; font-size: 16px; 
+            cursor: pointer; text-decoration: none; display: block; text-align: center;
+            margin-bottom: 10px;
+        }
+        .devam-btn {
+            background: #f1f1f1; color: #333; border: 1px solid #ddd; padding: 14px; 
+            width: 100%; border-radius: 12px; font-weight: bold; font-size: 14px; 
+            cursor: pointer; text-decoration: none; display: block; text-align: center;
+        }
+        .bos-sepet { text-align: center; padding: 50px 20px; color: #aaa; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="/" class="geri"><i class="fas fa-chevron-left"></i></a>
+    <div class="baslik">ALIŞVERİŞ SEPETİM</div>
+</header>
+
+<div class="sepet-liste">
+    {% if sepet %}
+        {% for urun in sepet %}
+        <div class="sepet-urun">
+            <div class="urun-bilgi-grup">
+                <span class="urun-ad">{{ urun.ad }}</span>
+                <span class="urun-kod">KOD: {{ urun.kod }}</span>
+            </div>
+            <div class="fiyat-grup">
+                <span class="urun-fiyat">{{ urun.fiyat }} ₺</span>
+            </div>
+            <a href="/sepetten-cikar/{{ urun.db_id }}" class="sil-btn"><i class="fas fa-times-circle"></i></a>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="bos-sepet">
+            <i class="fas fa-cart-plus" style="font-size: 60px; margin-bottom: 20px; color: #eee;"></i>
+            <p>Sepetiniz boş.</p>
+            <a href="/" style="color: var(--kirmizi); font-weight: bold; text-decoration: none;">Ürünlere Bak</a>
+        </div>
+    {% endif %}
+</div>
+
+{% if sepet %}
+<div class="ozet-alani">
+    <div class="ozet-satir">
+        <span>Ara Toplam</span>
+        <span>{{ ara_toplam }} ₺</span>
+    </div>
+    <div class="ozet-satir">
+        <span>KDV (%20)</span>
+        <span>{{ kdv_tutari }} ₺</span>
+    </div>
+    <div class="toplam-satir">
+        <span>GENEL TOPLAM</span>
+        <span>{{ genel_toplam }} ₺</span>
+    </div>
+    
+    <a href="/odeme-adimi" class="odeme-btn">GÜVENLİ ÖDEMEYE GEÇ</a>
+    <a href="/" class="devam-btn">ALIŞVERİŞE DEVAM ET</a>
+
+</div>
+{% endif %}
+
+</body>
+</html>

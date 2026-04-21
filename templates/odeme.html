@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ödeme | MUCURLU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --kirmizi: #e60000; --siyah: #1a1a1a; --gri: #f8f9fa; }
+        body { font-family: 'Inter', sans-serif; background: var(--gri); margin: 0; padding: 20px; }
+        .odeme-kart { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h2 { font-size: 18px; border-bottom: 2px solid var(--kirmizi); padding-bottom: 10px; margin-bottom: 20px; margin-top: 25px; }
+        h2:first-child { margin-top: 0; }
+        .input-grup { margin-bottom: 15px; }
+        label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #555; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
+        
+        /* Fatura Checkbox Alanı */
+        .fatura-check { display: flex; align-items: center; gap: 8px; background: #fff5f5; padding: 12px; border-radius: 8px; border: 1px dashed var(--kirmizi); margin-bottom: 15px; }
+        .fatura-check input { width: auto; }
+        .fatura-check label { margin-bottom: 0; cursor: pointer; }
+
+        .odeme-secenekleri { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .metot { border: 2px solid #eee; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .metot i { font-size: 24px; margin-bottom: 8px; display: block; }
+        .metot.aktif { border-color: var(--kirmizi); background: #fff5f5; color: var(--kirmizi); }
+        
+        .onayla-btn { background: var(--siyah); color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; font-size: 16px; margin-top: 25px; cursor: pointer; }
+        .tutar-bilgi { background: #eee; padding: 15px; border-radius: 10px; margin-top: 20px; text-align: center; font-weight: bold; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+<div class="odeme-kart">
+    <form action="/siparis-tamamla" method="POST">
+        <h2><i class="fas fa-truck"></i> Teslimat Bilgileri</h2>
+        <div class="input-grup">
+            <label>Ad Soyad</label>
+            <input type="text" name="ad_soyad" placeholder="Örn: Ahmet Yılmaz" required>
+        </div>
+        <div class="input-grup">
+            <label>Telefon</label>
+            <input type="tel" name="telefon" placeholder="05xx xxx xx xx" required>
+        </div>
+        <div class="input-grup">
+            <label>Açık Adres</label>
+            <textarea name="adres" rows="3" placeholder="Mahalle, Sokak, No, İlçe/İl" required></textarea>
+        </div>
+
+        <div class="fatura-check">
+            <input type="checkbox" id="fatura_ayni" name="fatura_ayni" checked onclick="faturaGoster()">
+            <label for="fatura_ayni">Fatura bilgilerim teslimat adresiyle aynı</label>
+        </div>
+
+        <div id="fatura_alani" style="display: none;">
+            <h2><i class="fas fa-file-invoice"></i> Fatura Bilgileri</h2>
+            <div class="input-grup">
+                <label>Fatura Ünvanı / Şahıs Adı</label>
+                <input type="text" name="fatura_unvan" placeholder="Örn: Mucurlu Lojistik LTD">
+            </div>
+            <div class="input-grup">
+                <label>Vergi Dairesi / TC No</label>
+                <input type="text" name="vergi_no" placeholder="Vergi No veya TC Kimlik No">
+            </div>
+            <div class="input-grup">
+                <label>Fatura Adresi</label>
+                <textarea name="fatura_adresi" rows="2" placeholder="Fatura adresini giriniz"></textarea>
+            </div>
+        </div>
+
+        <h2><i class="fas fa-credit-card"></i> Ödeme Yöntemi</h2>
+        <div class="odeme-secenekleri">
+            <div class="metot aktif" id="btn-kart" onclick="secim('kart')">
+                <i class="fas fa-credit-card"></i> Kredi Kartı
+            </div>
+            <div class="metot" id="btn-iban" onclick="secim('iban')">
+                <i class="fas fa-university"></i> Havale/EFT
+            </div>
+        </div>
+        <input type="hidden" name="odeme_tipi" id="odeme_tipi" value="kart">
+
+        <div class="tutar-bilgi">Ödenecek: {{ toplam }} ₺</div>
+
+        <button type="submit" class="onayla-btn">SİPARİŞİ ONAYLA</button>
+    </form>
+</div>
+
+<script>
+    // Ödeme yöntemi seçimi
+    function secim(tip) {
+        document.querySelectorAll('.metot').forEach(el => el.classList.remove('aktif'));
+        if(tip === 'kart') {
+            document.getElementById('btn-kart').classList.add('aktif');
+        } else {
+            document.getElementById('btn-iban').classList.add('aktif');
+        }
+        document.getElementById('odeme_tipi').value = tip;
+    }
+
+    // Fatura alanı göster/gizle
+    function faturaGoster() {
+        var checkbox = document.getElementById("fatura_ayni");
+        var alan = document.getElementById("fatura_alani");
+        alan.style.display = checkbox.checked ? "none" : "block";
+        
+        // Eğer alan açılırsa inputları zorunlu yapabilirsin (isteğe bağlı)
+        var inputs = alan.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            input.required = !checkbox.checked;
+        });
+    }
+</script>
+
+</body>
+</html>

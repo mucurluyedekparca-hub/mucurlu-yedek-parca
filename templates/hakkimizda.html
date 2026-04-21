@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hakkımızda | MUCURLU HEAVY DUTY PARTS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --kirmizi: #e60000; --siyah: #1a1a1a; --gri: #f8f9fa; }
+        body { font-family: 'Inter', sans-serif; background: var(--gri); margin: 0; padding: 0; color: #333; line-height: 1.6; }
+        
+        header { 
+            background: white; padding: 15px; text-align: center; 
+            border-bottom: 2px solid var(--kirmizi); position: sticky; top: 0; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo { font-size: 22px; font-weight: bold; letter-spacing: 2px; flex-grow: 1; text-decoration: none; color: var(--siyah); }
+        .logo span { color: var(--kirmizi); font-size: 10px; display: block; }
+
+        .hakkimizda-hero {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1586864387917-f53bc464e81c?auto=format&fit=crop&q=80');
+            background-size: cover; background-position: center;
+            color: white; padding: 80px 20px; text-align: center;
+        }
+
+        .icerik-kapsayici { max-width: 900px; margin: -40px auto 60px; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        
+        .baslik-vurgu { color: var(--kirmizi); font-weight: bold; font-size: 24px; margin-bottom: 20px; border-left: 5px solid var(--kirmizi); padding-left: 15px; }
+        
+        .ozellik-listesi { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
+        .ozellik-item { display: flex; align-items: center; background: var(--gri); padding: 15px; border-radius: 10px; }
+        .ozellik-item i { color: var(--kirmizi); font-size: 24px; margin-right: 15px; }
+        .ozellik-item span { font-weight: 600; font-size: 14px; }
+
+        footer { background: white; padding: 30px; text-align: center; border-top: 3px solid var(--kirmizi); margin-top: 40px; }
+        .geri-don { display: inline-block; margin-top: 20px; text-decoration: none; color: var(--siyah); font-weight: bold; border: 2px solid var(--siyah); padding: 10px 20px; border-radius: 5px; transition: 0.3s; }
+        .geri-don:hover { background: var(--siyah); color: white; }
+
+        @media (max-width: 768px) {
+            .ozellik-listesi { grid-template-columns: 1fr; }
+            .icerik-kapsayici { margin: 20px; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="/" class="logo">MUCURLU <span>HEAVY DUTY PARTS</span></a>
+</header>
+
+<section class="hakkimizda-hero">
+    <h1>Yol Arkadaşınız, Güven Kapınız</h1>
+    <p>Ağır Vasıta Yedek Parçada Konya'nın Teknolojiyle Birleşen Gücü</p>
+</section>
+
+<div class="icerik-kapsayici">
+    <div class="baslik-vurgu">MUCURLU KİMDİR?</div>
+    <p>
+        Konya'nın kalbinde, <b>Selçuklu</b> ilçesinde faaliyet gösteren dükkanımızla, ağır vasıta dünyasının devleri olan Scania, Mercedes-Benz, MAN, DAF ve Volvo gibi markaların <b>kaporta yedek parçaları</b> konusunda uzmanlaşmış bir ekibiz.
+    </p>
+    
+    <p>
+        Sektördeki tecrübemizi dijitalin hızıyla birleştirerek, Türkiye'nin dört bir yanındaki kamyon ve çekici sahiplerine, filolara ve ustalara en kaliteli parçaları en uygun fiyatlarla ulaştırıyoruz. Sadece bir satıcı değil, yolların aksamaması için çözüm ortağınız olmayı hedefliyoruz.
+    </p>
+
+    <div class="ozellik-listesi">
+        <div class="ozellik-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>Konya / Selçuklu Merkezli Güç</span>
+        </div>
+        <div class="ozellik-item">
+            <i class="fas fa-clock"></i>
+            <span>7/24 Kesintisiz Online Sipariş</span>
+        </div>
+        <div class="ozellik-item">
+            <i class="fas fa-truck"></i>
+            <span>Tüm Türkiye'ye Hızlı Kargo</span>
+        </div>
+        <div class="ozellik-item">
+            <i class="fas fa-shield-alt"></i>
+            <span>%100 Uyumlu Kaporta Parçaları</span>
+        </div>
+    </div>
+
+    <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
+        <h3>Vizyonumuz</h3>
+        <p>Gelişen teknolojiye ayak uydurarak, Konya'dan tüm Türkiye'ye uzanan yedek parça ağımızı global standartlara taşımak ve "MUCURLU" markasını güvenle eşanlamlı hale getirmektir.</p>
+    </div>
+
+    <center><a href="/" class="geri-don">ALIŞVERİŞE DÖN</a></center>
+</div>
+
+<footer>
+    <p>&copy; 2026 MUCURLU KAPORTA YEDEK PARÇA. Tüm Hakları Saklıdır.</p>
+</footer>
+
+</body>
+</html>

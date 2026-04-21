@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUCURLU | Ürün Düzenle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --kirmizi: #e60000; --siyah: #1a1a1a; --gri: #f8f9fa; --yesil: #28a745; }
+        body { font-family: 'Inter', sans-serif; background: var(--gri); padding: 20px; }
+        .duzenle-kutu { background: white; padding: 25px; border-radius: 15px; max-width: 500px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        h2 { color: var(--siyah); font-size: 18px; margin-bottom: 20px; border-bottom: 2px solid var(--gri); padding-bottom: 10px; }
+        label { display: block; font-size: 13px; font-weight: bold; margin-top: 15px; color: #555; }
+        input { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .butonlar { display: flex; gap: 10px; margin-top: 25px; }
+        .guncelle-btn { flex: 2; background: var(--yesil); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .iptal-btn { flex: 1; background: #666; color: white; border: none; padding: 15px; border-radius: 8px; text-decoration: none; text-align: center; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="duzenle-kutu">
+    <h2><i class="fas fa-edit"></i> Ürünü Düzenle</h2>
+    <form action="/urun-guncelle/{{ urun[0] }}" method="POST">
+        <label>Ürün Adı</label>
+        <input type="text" name="ad" value="{{ urun[1] }}" required>
+
+        <label>Parça Kodu</label>
+        <input type="text" name="kod" value="{{ urun[2] }}" required>
+
+        <label>Fiyat (₺)</label>
+        <input type="number" name="fiyat" value="{{ urun[3] }}" step="0.01" required>
+
+        <label>Resim (Link veya Dosya Adı)</label>
+        <input type="text" name="resim" value="{{ urun[6] }}">
+
+        <div class="butonlar">
+            <a href="/admin" class="iptal-btn">İptal</a>
+            <button type="submit" class="guncelle-btn">DEĞİŞİKLİKLERİ KAYDET</button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

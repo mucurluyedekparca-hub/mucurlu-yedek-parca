@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Güvenli Ödeme - MUCURLU</title>
+    <script src="https://www.paytr.com/js/iframeResizer.min.js"></script>
+</head>
+<body style="margin: 0; padding: 0; background: #f4f4f4;">
+    <div style="max-width: 800px; margin: 20px auto; padding: 10px;">
+        <h2 style="text-align: center; font-family: sans-serif; color: #1a1a1a;">Güvenli Ödeme Sayfası</h2>
+        <iframe src="https://www.paytr.com/odeme/guvenli/{{ token }}" id="paytriframe" frameborder="0" scrolling="no" style="width: 100%;"></iframe>
+        <script>iFrameResize({},'#paytriframe');</script>
+    </div>
+</body>
+</html>

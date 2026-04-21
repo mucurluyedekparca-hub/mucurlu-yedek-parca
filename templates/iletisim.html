@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İletişim | MUCURLU KAPORTA YEDEK PARÇA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --kirmizi: #e60000; --siyah: #1a1a1a; --gri: #f4f4f4; --wp: #25d366; }
+        body { font-family: 'Inter', sans-serif; background: var(--gri); margin: 0; padding: 0; color: #333; }
+        
+        header { 
+            background: white; 
+            padding: 20px; 
+            text-align: center; 
+            border-bottom: 3px solid var(--kirmizi);
+            display: flex;
+            justify-content: center; /* Logoyu tam ortaya çeker */
+            align-items: center;
+        }
+        .logo { font-size: 24px; font-weight: bold; letter-spacing: 2px; text-decoration: none; color: var(--siyah); text-align: center; }
+        .logo span { color: var(--kirmizi); }
+
+        .iletisim-konteynir { max-width: 1000px; margin: 40px auto; padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        
+        .kart { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .baslik { color: var(--kirmizi); font-size: 20px; font-weight: bold; margin-bottom: 25px; border-bottom: 2px solid var(--gri); padding-bottom: 10px; }
+        
+        .bilgi-satir { display: flex; align-items: flex-start; margin-bottom: 20px; }
+        .bilgi-satir i { font-size: 20px; color: var(--kirmizi); margin-right: 15px; margin-top: 5px; width: 25px; text-align: center; }
+        .bilgi-satir div b { display: block; font-size: 14px; color: #888; }
+        .bilgi-satir div span { font-size: 16px; font-weight: 600; }
+
+        .wp-buton { display: flex; align-items: center; justify-content: center; background: var(--wp); color: white; text-decoration: none; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 10px; transition: 0.3s; }
+        .wp-buton:hover { background: #128c7e; transform: translateY(-3px); }
+        .wp-buton i { margin-right: 10px; font-size: 22px; }
+
+        .harita-kutu { overflow: hidden; border-radius: 15px; height: 100%; min-height: 300px; }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        @media (max-width: 768px) {
+            .iletisim-konteynir { grid-template-columns: 1fr; margin: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="/" class="logo">MUCURLU <span>KAPORTA YEDEK PARÇA</span></a>
+</header>
+
+<div class="iletisim-konteynir">
+    <div class="kart">
+        <div class="baslik">BİZE ULAŞIN</div>
+        
+        <div class="bilgi-satir">
+            <i class="fas fa-map-marker-alt"></i>
+            <div>
+                <b>Adres</b>
+                <span>Zafer Sanayi, Horozluhan Mh. Samimi Sokak No:4 Selçuklu / KONYA</span>
+            </div>
+        </div>
+
+        <div class="bilgi-satir">
+            <i class="fas fa-phone-alt"></i>
+            <div>
+                <b>Telefon 1</b>
+                <span>0532 585 98 62</span>
+            </div>
+        </div>
+
+        <div class="bilgi-satir">
+            <i class="fas fa-phone-alt"></i>
+            <div>
+                <b>Telefon 2</b>
+                <span>0532 576 14 06</span>
+            </div>
+        </div>
+
+        <div class="bilgi-satir">
+            <i class="fas fa-envelope"></i>
+            <div>
+                <b>E-Posta</b>
+                <span>mucurluyedekparca@gmail.com</span>
+            </div>
+        </div>
+
+        <div class="bilgi-satir">
+            <i class="fas fa-clock"></i>
+            <div>
+                <b>Çalışma Saatleri</b>
+                <span>Hafta İçi & Cumartesi: 08:30 - 19:00</span>
+            </div>
+        </div>
+
+        <a href="https://wa.me/905438395594" class="wp-buton">
+            <i class="fab fa-whatsapp"></i> WHATSAPP'TAN YAZIN
+        </a>
+    </div>
+
+    <div class="harita-kutu">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3148.332304892408!2d32.5103445!3d37.9157291!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14d08f766e969d27%3A0xc364e72323cc286!2zSG9yb3psdWhhbiwgU2FtaW1pIFNrLiBObzo0LCA0MjA2MCBTZWzDp3VrbHUvS29ueWE!5e0!3m2!1str!2str!4v1711200000000!5m2!1str!2str" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+</div>
+
+<div style="text-align: center; padding-bottom: 40px;">
+    <a href="/" style="text-decoration: none; color: #888; font-weight: bold;"><i class="fas fa-chevron-left"></i> Ana Sayfaya Dön</a>
+</div>
+
+</body>
+</html>

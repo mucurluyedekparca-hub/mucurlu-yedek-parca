@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUCURLU | Admin Paneli</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --kirmizi: #e60000; --siyah: #1a1a1a; --gri: #f8f9fa; --yesil: #28a745; --turuncu: #ff9800; }
+        body { font-family: 'Inter', sans-serif; background: var(--gri); margin: 0; padding: 15px; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .admin-header h1 { color: var(--kirmizi); margin: 0; font-size: 18px; text-transform: uppercase; }
+        .form-kutu { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .form-kutu h2 { font-size: 16px; margin-top: 0; color: var(--siyah); }
+        input, select { padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; width: 100%; box-sizing: border-box; font-family: inherit; }
+        
+        /* TİKLEME ALANI STİLLERİ */
+        .alt-kat-cerceve { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-top: 10px; display: none; }
+        .alt-kat-baslik { font-weight: bold; font-size: 13px; margin-bottom: 10px; color: var(--siyah); display: block; }
+        .alt-kat-liste { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+        .tik-kutusu { display: flex; align-items: center; gap: 8px; background: white; padding: 8px; border-radius: 5px; border: 1px solid #eee; cursor: pointer; transition: 0.2s; }
+        .tik-kutusu:hover { border-color: var(--kirmizi); }
+        .tik-kutusu input { width: 18px; height: 18px; margin: 0; cursor: pointer; }
+        .tik-kutusu span { font-size: 13px; color: #444; }
+
+        .kaydet-btn { background: var(--yesil); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 20px; font-size: 15px; transition: 0.3s; }
+        .kaydet-btn:hover { background: #218838; transform: translateY(-2px); }
+        
+        .admin-konteynir { background: white; border-radius: 20px; padding: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); overflow-x: auto; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        th { background: var(--siyah); color: white; padding: 15px 10px; text-align: left; font-size: 12px; }
+        td { padding: 15px 10px; border-bottom: 1px solid #eee; font-size: 14px; }
+        .etiket { padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 11px; }
+        .kart { background: #e3f2fd; color: #1976d2; }
+        .iban { background: #fff3e0; color: #f57c00; }
+        .cikis-btn { color: #666; text-decoration: none; font-weight: bold; font-size: 13px; }
+        .sil-link { color: var(--kirmizi); font-size: 18px; text-decoration: none; transition: 0.3s; }
+        .duzenle-link { color: var(--turuncu); font-size: 18px; text-decoration: none; transition: 0.3s; margin-right: 15px; }
+        .sil-link:hover, .duzenle-link:hover { opacity: 0.7; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-header">
+        <h1><i class="fas fa-truck-loading"></i> Yönetim Paneli</h1>
+        <a href="/logout" class="cikis-btn"><i class="fas fa-sign-out-alt"></i> ÇIKIŞ</a>
+    </div>
+
+    <div class="form-kutu">
+        <h2><i class="fas fa-plus"></i> Yeni Ürün Ekle</h2>
+        <form action="/urun-ekle" method="POST">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <input type="text" name="ad" placeholder="Ürün Adı" required autocomplete="off">
+                <input type="text" name="kod" placeholder="Parça Kodu" required autocomplete="off">
+                <input type="number" name="fiyat" placeholder="Fiyat (₺)" step="0.01" required>
+                <select name="kategori" id="ana_kat_select" onchange="altKategorileriGoster()" required>
+                    <option value="">Marka Seçiniz...</option>
+                    {% for ana_kat in kat_sistemi.keys() %}
+                        <option value="{{ ana_kat }}">{{ ana_kat }}</option>
+                    {% endfor %}
+                    <option value="Anasayfa">Anasayfa (Sadece İmalatlarımızda Görünsün)</option>
+                </select>
+            </div>
+            
+            <div id="alt_kat_alani" class="alt-kat-cerceve">
+                <span class="alt-kat-baslik">Alt Kategorileri Tikleyin (Birden Fazla Seçilebilir):</span>
+                <div id="alt_kat_liste" class="alt-kat-liste">
+                    </div>
+            </div>
+
+            <input type="text" name="resim" placeholder="Resim URL veya Adı (Örn: urun1.jpg)" style="margin-top:15px;">
+            <button type="submit" class="kaydet-btn">ÜRÜNÜ SİSTEME EKLE</button>
+        </form>
+    </div>
+
+    <div class="form-kutu">
+        <h2><i class="fas fa-ad"></i> Ana Sayfa Duyuru (Banner) Yönetimi</h2>
+        <form action="/duyuru-ekle" method="POST" style="margin-bottom: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <input type="text" name="resim_url" placeholder="Duyuru Resim URL (İnternet Linki)" required>
+                <input type="text" name="hedef_link" placeholder="Tıklayınca Gidilecek Link (Opsiyonel)">
+            </div>
+            <button type="submit" class="kaydet-btn" style="background: var(--siyah);">DUYURU EKLE</button>
+        </form>
+
+        <div class="admin-konteynir" style="box-shadow: none; border: 1px solid #eee;">
+            <table style="min-width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Görsel</th>
+                        <th>Hedef Link</th>
+                        <th style="text-align: center;">Kaldır</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for duyuru in duyurular %}
+                    <tr>
+                        <td><img src="{{ duyuru.resim_url }}" width="80" style="height: 40px; object-fit: cover; border-radius: 4px;"></td>
+                        <td><small>{{ duyuru.hedef_link }}</small></td>
+                        <td style="text-align: center;">
+                            <a href="/duyuru-sil/{{ duyuru.id }}" class="sil-link"><i class="fas fa-minus-circle"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h2 style="font-size: 16px; padding-left: 10px;"><i class="fas fa-shopping-bag"></i> Gelen Siparişler</h2>
+    <div class="admin-konteynir">
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Müşteri</th>
+                    <th>Telefon</th>
+                    <th>Tutar</th>
+                    <th>Yöntem</th>
+                    <th>Tarih</th>
+                    <th style="text-align: center;">Kaldır</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in siparisler %}
+                <tr>
+                    <td><strong style="color:var(--kirmizi)">#{{ s[5] }}</strong></td>
+                    <td>{{ s[1] }}</td>
+                    <td>{{ s[2] }}</td>
+                    <td><strong>{{ s[3] }} ₺</strong></td>
+                    <td><span class="etiket {{ 'kart' if s[4] == 'kart' else 'iban' }}">{{ 'Kart' if s[4] == 'kart' else 'Havale' }}</span></td>
+                    <td>{{ s[6] }}</td>
+                    <td style="text-align: center;">
+                        <a href="/siparis-sil/{{ s[5] }}" class="sil-link" onclick="return confirm('Bu sipariş kaydını silmek istediğinize emin misiniz?')" title="Siparişi Sil">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h2 style="font-size: 16px; padding-left: 10px;"><i class="fas fa-boxes"></i> Mevcut Ürünler</h2>
+    <div class="admin-konteynir">
+        <table>
+            <thead>
+                <tr>
+                    <th>Görsel</th>
+                    <th>Ürün Adı</th>
+                    <th>Kod</th>
+                    <th>Fiyat</th>
+                    <th>Kategori</th>
+                    <th style="text-align: center;">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for urun in urunler %}
+                <tr>
+                    <td>
+                        <img src="{% if urun[6].startswith('http') %}{{ urun[6] }}{% else %}/static/urunler/{{ urun[6] }}{% endif %}" width="40" style="border-radius: 5px; height: 40px; object-fit: cover; background: #eee;">
+                    </td>
+                    <td>{{ urun[1] }}</td>
+                    <td>{{ urun[2] }}</td>
+                    <td><strong>{{ urun[3] }} ₺</strong></td>
+                    <td><small>{{ urun[4] }} / {{ urun[5] }}</small></td>
+                    <td style="text-align: center; white-space: nowrap;">
+                        <a href="/urun-duzenle/{{ urun[0] }}" class="duzenle-link" title="Ürünü Düzenle">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="/urun-sil/{{ urun[0] }}" class="sil-link" onclick="return confirm('Bu ürünü dükkandan kaldırmak istediğinize emin misiniz?')" title="Ürünü Sil">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Python'dan gelen kategori listesini JS'e aktarıyoruz
+        const katVerisi = {{ kat_sistemi | tojson }};
+
+        function altKategorileriGoster() {
+            const secilenAna = document.getElementById('ana_kat_select').value;
+            const alani = document.getElementById('alt_kat_alani');
+            const liste = document.getElementById('alt_kat_liste');
+            
+            liste.innerHTML = ""; // Öncekileri sil
+
+            if (secilenAna && katVerisi[secilenAna]) {
+                alani.style.display = "block";
+                katVerisi[secilenAna].forEach(alt => {
+                    const label = document.createElement('label');
+                    label.className = "tik-kutusu";
+                    label.innerHTML = `
+                        <input type="checkbox" name="alt_kategoriler" value="${alt}">
+                        <span>${alt}</span>
+                    `;
+                    liste.appendChild(label);
+                });
+            } else {
+                alani.style.display = "none";
+            }
+        }
+    </script>
+
+</body>
+</html>
