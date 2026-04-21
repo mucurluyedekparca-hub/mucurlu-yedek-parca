@@ -9,10 +9,10 @@ from flask import Flask, render_template, request, redirect, url_for, session
 app = Flask(__name__)
 app.secret_key = 'mucurlu_ozel_guvenlik_anahtari'
 
-# --- PAYTR AYARLARI ---
-MERCHANT_ID = '691095'
-MERCHANT_KEY = 'ARQDZLeTgWqMqpe1'
-MERCHANT_SALT = 'AUzBdHFqH92RD7kg'
+# --- PARATİKA AYARLARI ---
+PARATIKA_API_URL = "https://vpos.paratika.com.tr/paratika/api/v2/checkout"
+MERCHANT_CODE = "10005757"
+MERCHANT_KEY = "UXomv9RzPyczSjLd4M1g"
 
 # --- VERİTABANI KURULUMU ---
 def veri_hazirla():
@@ -274,7 +274,6 @@ def siparis_tamamla():
             return redirect(url_for('home'))
 
         toplam_sayi = sum(r[1] for r in rows) * 1.20
-        paytr_tutar = int(toplam_sayi * 100)
         formatli_toplam = format_para(toplam_sayi)
 
         # Benzersiz sipariş no için zaman damgası kullanımı
@@ -288,27 +287,40 @@ def siparis_tamamla():
         conn.commit()
 
     if odeme_tipi == 'kart':
-        user_ip = request.remote_addr
-        basket = base64.b64encode(str([[r[0], str(r[1]), 1] for r in rows]).encode())
-        paytr_token_str = MERCHANT_ID + user_ip + siparis_no + email + str(paytr_tutar) + basket.decode() + "0" + "0" + MERCHANT_SALT
-        paytr_token = base64.b64encode(hashlib.sha256((paytr_token_str + MERCHANT_KEY).encode()).digest()).decode()
+        # --- PARATİKA SESSION TOKEN OLUŞTURMA ---
+        tutar_str = "{:.2f}".format(toplam_sayi)
+        ok_url = url_for('siparis_onay_ekrani', siparis_no=siparis_no, _external=True)
+        fail_url = url_for('home', _external=True)
+        
+        # Paratika Hash: MerchantKey + MerchantCode + OrderId + Amount + okUrl + failUrl
+        hash_str = MERCHANT_KEY + MERCHANT_CODE + siparis_no + tutar_str + ok_url + fail_url
+        token = hashlib.sha1(hash_str.encode()).hexdigest()
 
         params = {
-            'merchant_id': MERCHANT_ID, 'user_ip': user_ip, 'merchant_oid': siparis_no,
-            'email': email, 'payment_amount': paytr_tutar, 'paytr_token': paytr_token,
-            'user_basket': basket, 'debug_on': 0, 'no_installment': 1, 'max_installment': 0,
-            'user_name': ad_soyad, 'user_address': 'Konya Zafer Sanayi No4', 'user_phone': telefon,
-            'merchant_ok_url': url_for('siparis_onay_ekrani', siparis_no=siparis_no, _external=True),
-            'merchant_fail_url': url_for('home', _external=True), 'timeout_limit': 30, 'currency': 'TL', 'test_mode': 0
+            "action": "SESSIONTOKEN",
+            "merchantCode": MERCHANT_CODE,
+            "orderId": siparis_no,
+            "amount": tutar_str,
+            "currency": "TRY",
+            "okUrl": ok_url,
+            "failUrl": fail_url,
+            "token": token,
+            "customerName": ad_soyad,
+            "customerEmail": email,
+            "customerPhone": telefon,
+            "isConfirm": "Y"
         }
 
-        response = requests.post("https://www.paytr.com/odeme/api/get-token", data=params)
-        res = response.json()
-
-        if res['status'] == 'success':
-            return render_template('paytr_iframe.html', token=res['token'])
-        else:
-            return "PayTR Hatası: " + res['reason']
+        try:
+            response = requests.post(PARATIKA_API_URL, data=params)
+            res_json = response.json()
+            if res_json.get('responseCode') == '00':
+                session_token = res_json.get('sessionToken')
+                return redirect(f"https://vpos.paratika.com.tr/paratika/api/v2/checkout?sessionToken={session_token}")
+            else:
+                return "Paratika API Hatası: " + res_json.get('responseMessage')
+        except Exception as e:
+            return "Bağlantı Hatası: " + str(e)
     else:
         with sqlite3.connect('client_data.db') as conn:
             cursor = conn.cursor()
@@ -318,12 +330,12 @@ def siparis_tamamla():
 
 @app.route('/payment/callback', methods=['POST'])
 def payment_callback():
-    merchant_oid = request.form.get('merchant_oid')
+    order_id = request.form.get('orderId')
     status = request.form.get('status')
-    if status == 'success':
+    if status == 'SUCCESS':
         with sqlite3.connect('client_data.db') as conn:
             cursor = conn.cursor()
-            cursor.execute("UPDATE siparisler SET durum = 'Onaylandı' WHERE siparis_no = ?", (merchant_oid,))
+            cursor.execute("UPDATE siparisler SET durum = 'Onaylandı' WHERE siparis_no = ?", (order_id,))
             cursor.execute('DELETE FROM sepet')
             conn.commit()
     return "OK"
