@@ -296,7 +296,7 @@ def siparis_tamamla():
         params = {
             'merchant_id': MERCHANT_ID, 'user_ip': user_ip, 'merchant_oid': siparis_no,
             'email': email, 'payment_amount': paytr_tutar, 'paytr_token': paytr_token,
-            'user_basket': basket, 'debug_on': 0, 'no_installments': 0, 'max_installments': 0,
+            'user_basket': basket, 'debug_on': 0, 'no_installment': 1, 'max_installment': 0,
             'user_name': ad_soyad, 'user_address': 'Sanayi Sitesi', 'user_phone': telefon,
             'merchant_ok_url': url_for('siparis_onay_ekrani', siparis_no=siparis_no, _external=True),
             'merchant_fail_url': url_for('home', _external=True), 'timeout_limit': 30, 'currency': 'TL', 'test_mode': 0
