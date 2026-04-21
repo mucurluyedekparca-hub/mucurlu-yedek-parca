@@ -9,14 +9,13 @@
     <style>
         :root { --kirmizi: #e60000; --siyah: #1a1a1a; --gri: #f8f9fa; }
         body { font-family: 'Inter', sans-serif; background: var(--gri); margin: 0; padding: 20px; }
-        .odeme-kart { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .odeme-kart { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 600px; margin: auto; }
         h2 { font-size: 18px; border-bottom: 2px solid var(--kirmizi); padding-bottom: 10px; margin-bottom: 20px; margin-top: 25px; }
         h2:first-child { margin-top: 0; }
         .input-grup { margin-bottom: 15px; }
         label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #555; }
         input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
         
-        /* Fatura Checkbox Alanı */
         .fatura-check { display: flex; align-items: center; gap: 8px; background: #fff5f5; padding: 12px; border-radius: 8px; border: 1px dashed var(--kirmizi); margin-bottom: 15px; }
         .fatura-check input { width: auto; }
         .fatura-check label { margin-bottom: 0; cursor: pointer; }
@@ -74,40 +73,41 @@
             <div class="metot aktif" id="btn-kart" onclick="secim('kart')">
                 <i class="fas fa-credit-card"></i> Kredi Kartı
             </div>
-            <div class="metot" id="btn-iban" onclick="secim('iban')">
+            <div class="metot" id="btn-havale" onclick="secim('havale')">
                 <i class="fas fa-university"></i> Havale/EFT
             </div>
         </div>
         <input type="hidden" name="odeme_tipi" id="odeme_tipi" value="kart">
 
-        <div class="tutar-bilgi">Ödenecek: {{ toplam }} ₺</div>
+        <div class="tutar-bilgi">Ödenecek: {{ toplam }}</div>
 
         <button type="submit" class="onayla-btn">SİPARİŞİ ONAYLA</button>
     </form>
 </div>
 
 <script>
-    // Ödeme yöntemi seçimi
     function secim(tip) {
         document.querySelectorAll('.metot').forEach(el => el.classList.remove('aktif'));
         if(tip === 'kart') {
             document.getElementById('btn-kart').classList.add('aktif');
         } else {
-            document.getElementById('btn-iban').classList.add('aktif');
+            document.getElementById('btn-havale').classList.add('aktif');
         }
         document.getElementById('odeme_tipi').value = tip;
     }
 
-    // Fatura alanı göster/gizle
     function faturaGoster() {
         var checkbox = document.getElementById("fatura_ayni");
         var alan = document.getElementById("fatura_alani");
         alan.style.display = checkbox.checked ? "none" : "block";
         
-        // Eğer alan açılırsa inputları zorunlu yapabilirsin (isteğe bağlı)
         var inputs = alan.querySelectorAll('input, textarea');
         inputs.forEach(input => {
-            input.required = !checkbox.checked;
+            if(!checkbox.checked) {
+                input.setAttribute('required', '');
+            } else {
+                input.removeAttribute('required');
+            }
         });
     }
 </script>
