@@ -289,7 +289,7 @@ def siparis_tamamla():
         }
 
         try:
-            api_url = "https://vpos.paratika.com.tr/api/v2"
+            api_url = "https://vpos.paratika.com.tr/paratika/api/v2"
             response = requests.post(api_url, data=params)
             
             if response.status_code == 200 and response.text.strip():
