@@ -287,17 +287,18 @@ def siparis_tamamla():
         conn.commit()
 
     if odeme_tipi == 'kart':
-        # --- PARATİKA SESSION TOKEN OLUŞTURMA ---
+        # --- PARATİKA GÜNCELLENMİŞ SESSION TOKEN AKIŞI (460 HATASI ÇÖZÜMÜ) ---
         tutar_str = "{:.2f}".format(toplam_sayi)
         ok_url = url_for('siparis_onay_ekrani', siparis_no=siparis_no, _external=True)
         fail_url = url_for('home', _external=True)
         
-        # Paratika Hash: MerchantKey + MerchantCode + OrderId + Amount + okUrl + failUrl
-        hash_str = MERCHANT_KEY + MERCHANT_CODE + siparis_no + tutar_str + ok_url + fail_url
+        # Paratika Hash Sıralaması: MERCHANT_KEY + MERCHANT_CODE + action + orderId + amount + currency + okUrl + failUrl
+        action = "SESSIONTOKEN"
+        hash_str = MERCHANT_KEY + MERCHANT_CODE + action + siparis_no + tutar_str + "TRY" + ok_url + fail_url
         token = hashlib.sha1(hash_str.encode()).hexdigest()
 
         params = {
-            "action": "SESSIONTOKEN",
+            "action": action,
             "merchantCode": MERCHANT_CODE,
             "orderId": siparis_no,
             "amount": tutar_str,
@@ -316,9 +317,10 @@ def siparis_tamamla():
             res_json = response.json()
             if res_json.get('responseCode') == '00':
                 session_token = res_json.get('sessionToken')
-                return redirect(f"https://vpos.paratika.com.tr/paratika/api/v2/checkout?sessionToken={session_token}")
+                # Yönlendirme linki Paratika Standartlarına Göre Güncellendi
+                return redirect(f"https://vpos.paratika.com.tr/merchant/post/sale/{session_token}")
             else:
-                return "Paratika API Hatası: " + res_json.get('responseMessage')
+                return "Paratika API Hatası: " + res_json.get('responseMessage', 'Kod: ' + res_json.get('responseCode'))
         except Exception as e:
             return "Bağlantı Hatası: " + str(e)
     else:
