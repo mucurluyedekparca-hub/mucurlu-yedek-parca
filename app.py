@@ -275,8 +275,6 @@ def siparis_tamamla():
 
         toplam_sayi = sum(r[1] for r in rows) * 1.20
         formatli_toplam = format_para(toplam_sayi)
-
-        # Benzersiz sipariş no için zaman damgası kullanımı
         siparis_no = str(int(time.time()))
 
         cursor.execute('''
@@ -286,14 +284,12 @@ def siparis_tamamla():
 
         conn.commit()
 
-        if odeme_tipi == 'kart':
-        # --- PARATİKA KESİN ÇÖZÜM ---
+    if odeme_tipi == 'kart':
+        # --- PARATİKA KESİN ÇÖZÜM (HIZALI) ---
         tutar_str = "{:.2f}".format(toplam_sayi)
         ok_url = url_for('siparis_onay_ekrani', siparis_no=siparis_no, _external=True)
         fail_url = url_for('home', _external=True)
         
-        # Maildeki Dokümana Göre Doğru Hash Sıralaması:
-        # MERCHANT_KEY + MERCHANT_CODE + action + orderId + amount + currency + okUrl + failUrl
         action = "SESSIONTOKEN"
         hash_str = f"{MERCHANT_KEY}{MERCHANT_CODE}{action}{siparis_no}{tutar_str}TRY{ok_url}{fail_url}"
         token = hashlib.sha1(hash_str.encode()).hexdigest()
@@ -314,23 +310,20 @@ def siparis_tamamla():
         }
 
         try:
-            # ÖNEMLİ: URL'nin sonundaki /paratika/api/v2 kısmına dikkat!
             api_url = "https://vpos.paratika.com.tr/paratika/api/v2"
             response = requests.post(api_url, data=params)
             
-            # Eğer Paratika boş dönerse hata vermemesi için kontrol:
             if response.status_code == 200 and response.text.strip():
                 res_json = response.json()
                 if res_json.get('responseCode') == '00':
                     session_token = res_json.get('sessionToken')
-                    # Maildeki "Non Direct Post 3D" linkine yönlendiriyoruz:
                     return redirect(f"https://vpos.paratika.com.tr/merchant/post/sale/{session_token}")
                 else:
                     return f"Paratika Hatası: {res_json.get('responseMessage')} (Kod: {res_json.get('responseCode')})"
             else:
                 return f"Paratika Sunucu Hatası! Durum Kodu: {response.status_code}"
         except Exception as e:
-            return "Bağlantı Hatası: " + str(e) 
+            return "Bağlantı Hatası: " + str(e)
     else:
         with sqlite3.connect('client_data.db') as conn:
             cursor = conn.cursor()
@@ -533,19 +526,15 @@ def sutun_ekle_garanti():
     conn = sqlite3.connect('client_data.db')
     cursor = conn.cursor()
     try:
-        # Bu komut siparisler tablosuna 'durum' sütununu sessizce ekler
         cursor.execute("ALTER TABLE siparisler ADD COLUMN durum TEXT DEFAULT 'Beklemede'")
         conn.commit()
         print("Sütun başarıyla eklendi!")
     except sqlite3.OperationalError:
-        # Sütun zaten varsa burası çalışır ve hata vermez
         print("Sütun zaten var, sorun yok.")
     finally:
         conn.close()
 
-# Uygulama başlamadan hemen önce çalıştırıyoruz
 sutun_ekle_garanti()
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000, threaded=True)
