@@ -9,8 +9,8 @@ from flask import Flask, render_template, request, redirect, url_for, session
 app = Flask(__name__)
 app.secret_key = 'mucurlu_ozel_guvenlik_anahtari'
 
-# --- PARATİKA AYARLARI ---
-PARATIKA_API_URL = "https://vpos.paratika.com.tr/api/v2"
+# --- PARATİKA AYARLARI (DÖKÜMANA GÖRE ENTEGRASYON) ---
+PARATIKA_API_URL = "https://entegrasyon.paratika.com.tr/paratika/api/v2"
 MERCHANT_CODE = "10005757"
 MERCHANT_KEY = "UXomv9RzPyczSjLd4M1g"
 
@@ -264,7 +264,7 @@ def siparis_tamamla():
         conn.commit()
 
     if odeme_tipi == 'kart':
-        # --- PARATİKA KESİN ÇÖZÜM ---
+        # --- PARATİKA KESİN ÇÖZÜM (ENTEGRASYON UYUMLU) ---
         tutar_str = "{:.2f}".format(toplam_sayi)
         ok_url = url_for('siparis_onay_ekrani', siparis_no=siparis_no, _external=True)
         fail_url = url_for('home', _external=True)
@@ -274,29 +274,30 @@ def siparis_tamamla():
         token = hashlib.sha1(hash_str.encode()).hexdigest()
 
         params = {
-            "action": str(action),
-            "merchantCode": str(MERCHANT_CODE),
-            "orderId": str(siparis_no),
-            "amount": str(tutar_str),
+            "action": action,
+            "merchantCode": MERCHANT_CODE,
+            "orderId": siparis_no,
+            "amount": tutar_str,
             "currency": "TRY",
-            "okUrl": str(ok_url),
-            "failUrl": str(fail_url),
-            "token": str(token),
-            "customerName": str(ad_soyad),
-            "customerEmail": str(email),
-            "customerPhone": str(telefon),
+            "okUrl": ok_url,
+            "failUrl": fail_url,
+            "token": token,
+            "customerName": ad_soyad,
+            "customerEmail": email,
+            "customerPhone": telefon,
             "isConfirm": "Y"
         }
 
         try:
-            api_url = "https://vpos.paratika.com.tr/paratika/api/v2"
-            response = requests.post(api_url, data=params)
+            # Entegrasyon API adresine istek atıyoruz
+            response = requests.post(PARATIKA_API_URL, data=params)
             
             if response.status_code == 200 and response.text.strip():
                 res_json = response.json()
                 if res_json.get('responseCode') == '00':
                     session_token = res_json.get('sessionToken')
-                    return redirect(f"https://vpos.paratika.com.tr/merchant/post/sale/{session_token}")
+                    # Ödeme ekranına yönlendirme (Entegrasyon URL'si)
+                    return redirect(f"https://entegrasyon.paratika.com.tr/paratika/checkout/{session_token}")
                 else:
                     return f"Paratika Hatası: {res_json.get('responseMessage')} (Kod: {res_json.get('responseCode')})"
             else:
