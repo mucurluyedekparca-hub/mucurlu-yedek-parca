@@ -258,7 +258,7 @@ def odeme_adimi():
     toplam_sayi = sum(r[0] for r in rows) * 1.20
     return render_template('odeme.html', toplam=format_para(toplam_sayi))
 
-@app.route('/siparis-tamamla', methods=['POST'])
+@app.route('/siparis-tamamla', methods=['GET','POST'])
 def siparis_tamamla():
     ad_soyad = request.form.get('ad_soyad')
     telefon = request.form.get('telefon')
@@ -297,7 +297,7 @@ def siparis_tamamla():
             'merchant_id': MERCHANT_ID, 'user_ip': user_ip, 'merchant_oid': siparis_no,
             'email': email, 'payment_amount': paytr_tutar, 'paytr_token': paytr_token,
             'user_basket': basket, 'debug_on': 0, 'no_installment': 1, 'max_installment': 0,
-            'user_name': ad_soyad, 'user_address': 'Konya Zafer Sanayi Horozluhan Mh Samimi Sok ;No4', 'user_phone': telefon,
+            'user_name': ad_soyad, 'user_address': 'Konya Zafer Sanayi No4', 'user_phone': telefon,
             'merchant_ok_url': url_for('siparis_onay_ekrani', siparis_no=siparis_no, _external=True),
             'merchant_fail_url': url_for('home', _external=True), 'timeout_limit': 30, 'currency': 'TL', 'test_mode': 0
         }
