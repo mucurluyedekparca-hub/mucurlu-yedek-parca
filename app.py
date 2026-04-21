@@ -286,15 +286,16 @@ def siparis_tamamla():
 
         conn.commit()
 
-    if odeme_tipi == 'kart':
-        # --- PARATİKA GÜNCELLENMİŞ SESSION TOKEN AKIŞI (460 HATASI ÇÖZÜMÜ) ---
+        if odeme_tipi == 'kart':
+        # --- PARATİKA KESİN ÇÖZÜM ---
         tutar_str = "{:.2f}".format(toplam_sayi)
         ok_url = url_for('siparis_onay_ekrani', siparis_no=siparis_no, _external=True)
         fail_url = url_for('home', _external=True)
         
-        # Paratika Hash Sıralaması: MERCHANT_KEY + MERCHANT_CODE + action + orderId + amount + currency + okUrl + failUrl
+        # Maildeki Dokümana Göre Doğru Hash Sıralaması:
+        # MERCHANT_KEY + MERCHANT_CODE + action + orderId + amount + currency + okUrl + failUrl
         action = "SESSIONTOKEN"
-        hash_str = MERCHANT_KEY + MERCHANT_CODE + action + siparis_no + tutar_str + "TRY" + ok_url + fail_url
+        hash_str = f"{MERCHANT_KEY}{MERCHANT_CODE}{action}{siparis_no}{tutar_str}TRY{ok_url}{fail_url}"
         token = hashlib.sha1(hash_str.encode()).hexdigest()
 
         params = {
@@ -313,16 +314,23 @@ def siparis_tamamla():
         }
 
         try:
-            response = requests.post(PARATIKA_API_URL, data=params)
-            res_json = response.json()
-            if res_json.get('responseCode') == '00':
-                session_token = res_json.get('sessionToken')
-                # Yönlendirme linki Paratika Standartlarına Göre Güncellendi
-                return redirect(f"https://vpos.paratika.com.tr/merchant/post/sale/{session_token}")
+            # ÖNEMLİ: URL'nin sonundaki /paratika/api/v2 kısmına dikkat!
+            api_url = "https://vpos.paratika.com.tr/paratika/api/v2"
+            response = requests.post(api_url, data=params)
+            
+            # Eğer Paratika boş dönerse hata vermemesi için kontrol:
+            if response.status_code == 200 and response.text.strip():
+                res_json = response.json()
+                if res_json.get('responseCode') == '00':
+                    session_token = res_json.get('sessionToken')
+                    # Maildeki "Non Direct Post 3D" linkine yönlendiriyoruz:
+                    return redirect(f"https://vpos.paratika.com.tr/merchant/post/sale/{session_token}")
+                else:
+                    return f"Paratika Hatası: {res_json.get('responseMessage')} (Kod: {res_json.get('responseCode')})"
             else:
-                return "Paratika API Hatası: " + res_json.get('responseMessage', 'Kod: ' + res_json.get('responseCode'))
+                return f"Paratika Sunucu Hatası! Durum Kodu: {response.status_code}"
         except Exception as e:
-            return "Bağlantı Hatası: " + str(e)
+            return "Bağlantı Hatası: " + str(e) 
     else:
         with sqlite3.connect('client_data.db') as conn:
             cursor = conn.cursor()
