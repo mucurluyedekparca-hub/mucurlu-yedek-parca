@@ -14,6 +14,11 @@ PARATIKA_API_URL = "https://entegrasyon.paratika.com.tr/paratika/api/v2"
 MERCHANT_CODE = "10005757"
 MERCHANT_KEY = "UXomv9RzPyczSjLd4M1g"
 
+# DÖKÜMANDA BELİRTİLEN ZORUNLU KİMLİK BİLGİLERİ (23560.jpg)
+# Buraya Paratika panelinden aldığın API kullanıcı bilgilerini girmelisin.
+MERCHANT_USER = "Panelden_Alinan_Kullanici_Adi" 
+MERCHANT_PASSWORD = "Panelden_Alinan_Sifre"
+
 # --- VERİTABANI KURULUMU ---
 def veri_hazirla():
     with sqlite3.connect('client_data.db') as conn:
@@ -276,6 +281,8 @@ def siparis_tamamla():
         params = {
             "action": action,
             "merchantCode": MERCHANT_CODE,
+            "merchantUser": MERCHANT_USER,      # Dökümanda (23560.jpg) zorunlu olan parametre
+            "merchantPassword": MERCHANT_PASSWORD, # Dökümanda (23560.jpg) zorunlu olan parametre
             "orderId": siparis_no,
             "amount": tutar_str,
             "currency": "TRY",
@@ -289,14 +296,14 @@ def siparis_tamamla():
         }
 
         try:
-            # Entegrasyon API adresine istek atıyoruz
+            # Entegrasyon API adresine istek atıyoruz (Döküman 23554.jpg)
             response = requests.post(PARATIKA_API_URL, data=params)
             
             if response.status_code == 200 and response.text.strip():
                 res_json = response.json()
                 if res_json.get('responseCode') == '00':
                     session_token = res_json.get('sessionToken')
-                    # Ödeme ekranına yönlendirme (Entegrasyon URL'si)
+                    # Ödeme ekranına yönlendirme (Entegrasyon URL'si 23554.jpg)
                     return redirect(f"https://entegrasyon.paratika.com.tr/paratika/checkout/{session_token}")
                 else:
                     return f"Paratika Hatası: {res_json.get('responseMessage')} (Kod: {res_json.get('responseCode')})"
