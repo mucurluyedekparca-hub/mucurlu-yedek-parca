@@ -9,15 +9,15 @@ from flask import Flask, render_template, request, redirect, url_for, session
 app = Flask(__name__)
 app.secret_key = 'mucurlu_ozel_guvenlik_anahtari'
 
-# --- PARATİKA AYARLARI (DÖKÜMANA GÖRE ENTEGRASYON) ---
-PARATIKA_API_URL = "https://entegrasyon.paratika.com.tr/paratika/api/v2"
+# --- PARATİKA AYARLARI (CANLI - PROD ORTAM) ---
+# Görsel 23812.jpg: Prod ortam URL'si kullanıldı.
+PARATIKA_API_URL = "https://vpos.paratika.com.tr/paratika/api/v2"
 MERCHANT_CODE = "10005757"
 MERCHANT_KEY = "UXomv9RzPyczSjLd4M1g"
 
-# DÖKÜMANDA BELİRTİLEN ZORUNLU KİMLİK BİLGİLERİ (23560.jpg)
-# Buraya Paratika panelinden aldığın API kullanıcı bilgilerini girmelisin.
-MERCHANT_USER = "Panelden_Alinan_Kullanici_Adi" 
-MERCHANT_PASSWORD = "Panelden_Alinan_Sifre"
+# MAİL VE ŞİFRE BİLGİLERİ (Noktasıyla beraber yerleştirildi)
+MERCHANT_USER = "mucurlumustafa42@gmail.com" 
+MERCHANT_PASSWORD = "Mstf42mcrl42."
 
 # --- VERİTABANI KURULUMU ---
 def veri_hazirla():
@@ -269,20 +269,22 @@ def siparis_tamamla():
         conn.commit()
 
     if odeme_tipi == 'kart':
-        # --- PARATİKA KESİN ÇÖZÜM (ENTEGRASYON UYUMLU) ---
+        # --- PARATİKA CANLI SİSTEM ---
         tutar_str = "{:.2f}".format(toplam_sayi)
-        ok_url = url_for('siparis_onay_ekrani', siparis_no=siparis_no, _external=True)
-        fail_url = url_for('home', _external=True)
+        ok_url = "https://mucurlu-yedek-parca.onrender.com/siparis-onay-ekrani/" + siparis_no
+        fail_url = "https://mucurlu-yedek-parca.onrender.com/"
         
         action = "SESSIONTOKEN"
+        
+        # Hash Sıralaması: KEY + CODE + ACTION + ORDERID + AMOUNT + CURRENCY + OKURL + FAILURL
         hash_str = f"{MERCHANT_KEY}{MERCHANT_CODE}{action}{siparis_no}{tutar_str}TRY{ok_url}{fail_url}"
-        token = hashlib.sha1(hash_str.encode()).hexdigest()
+        token = hashlib.sha1(hash_str.encode('utf-8')).hexdigest()
 
         params = {
             "action": action,
             "merchantCode": MERCHANT_CODE,
-            "merchantUser": MERCHANT_USER,      # Dökümanda (23560.jpg) zorunlu olan parametre
-            "merchantPassword": MERCHANT_PASSWORD, # Dökümanda (23560.jpg) zorunlu olan parametre
+            "merchantUser": MERCHANT_USER,      
+            "merchantPassword": MERCHANT_PASSWORD, 
             "orderId": siparis_no,
             "amount": tutar_str,
             "currency": "TRY",
@@ -296,21 +298,22 @@ def siparis_tamamla():
         }
 
         try:
-            # Entegrasyon API adresine istek atıyoruz (Döküman 23554.jpg)
-            response = requests.post(PARATIKA_API_URL, data=params)
+            # CANLI URL (Görsel 23812.jpg)
+            response = requests.post(PARATIKA_API_URL, data=params, timeout=10)
             
-            if response.status_code == 200 and response.text.strip():
+            if response.status_code == 200:
                 res_json = response.json()
                 if res_json.get('responseCode') == '00':
                     session_token = res_json.get('sessionToken')
-                    # Ödeme ekranına yönlendirme (Entegrasyon URL'si 23554.jpg)
-                    return redirect(f"https://entegrasyon.paratika.com.tr/paratika/checkout/{session_token}")
+                    # Canlı ödeme sayfası
+                    return redirect(f"https://vpos.paratika.com.tr/paratika/checkout/{session_token}")
                 else:
-                    return f"Paratika Hatası: {res_json.get('responseMessage')} (Kod: {res_json.get('responseCode')})"
+                    msg = res_json.get('responseMessage', 'Bilinmeyen Hata')
+                    return f"Ödeme Başlatılamadı: {msg} (Kod: {res_json.get('responseCode')})"
             else:
-                return f"Paratika Sunucu Hatası! Durum Kodu: {response.status_code}"
+                return f"Paratika Bağlantı Sorunu! (HTTP {response.status_code})"
         except Exception as e:
-            return "Bağlantı Hatası: " + str(e)
+            return f"Sistem Hatası: {str(e)}"
     else:
         with sqlite3.connect('client_data.db') as conn:
             cursor = conn.cursor()
